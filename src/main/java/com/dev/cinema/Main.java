@@ -1,12 +1,16 @@
 package com.dev.cinema;
 
+import com.dev.cinema.exception.AuthenticationException;
 import com.dev.cinema.lib.Injector;
 import com.dev.cinema.model.CinemaHall;
 import com.dev.cinema.model.Movie;
 import com.dev.cinema.model.MovieSession;
+import com.dev.cinema.model.User;
+import com.dev.cinema.security.AuthenticationService;
 import com.dev.cinema.service.CinemaHallService;
 import com.dev.cinema.service.MovieService;
 import com.dev.cinema.service.MovieSessionService;
+import com.dev.cinema.service.UserService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -74,5 +78,34 @@ public class Main {
         availableSessions.forEach(System.out::println);
         availableSessions1.forEach(System.out::println);
         availableSessions2.forEach(System.out::println);
+
+        final UserService userService = (UserService) injector
+                .getInstance(UserService.class);
+        User sasha = new User();
+        sasha.setEmail("sasha@gmail.com");
+        sasha.setPassword("1234");
+        System.out.println(userService.add(sasha));
+        System.out.println(userService.findByEmail(sasha.getEmail()));
+        String invalidEmail = "user@gmail.com";
+        System.out.println(userService.findByEmail(invalidEmail));
+        User gena = new User();
+        gena.setEmail("sasha@gmail.com");
+        gena.setPassword("1234");
+        //      throws an error :
+        //      ERROR: Duplicate entry 'sasha@gmail.com'
+        //      System.out.println(userService.add(gena));
+
+        final AuthenticationService authenticationService = (AuthenticationService) injector
+                .getInstance(AuthenticationService.class);
+        String login = "tolik@gmail.com";
+        String password = "4321";
+        User tolik = authenticationService.register(login, password);
+        System.out.println(tolik);
+        try {
+            User userByLogin = authenticationService.login(tolik.getEmail(), password);
+            System.out.println(userByLogin.toString());
+        } catch (AuthenticationException e) {
+            e.printStackTrace();
+        }
     }
 }
