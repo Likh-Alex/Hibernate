@@ -66,11 +66,11 @@ public class Main {
         movieSessionService.add(yesterdayMovieSession);
 
         List<MovieSession> availableSessions = movieSessionService
-                .findAvailableSessions(1L, LocalDate.now());
+                .findAvailableSessions(raceMovie.getId(), LocalDate.now());
         List<MovieSession> availableSessions1 = movieSessionService
-                .findAvailableSessions(2L, LocalDate.now().plusDays(1L));
+                .findAvailableSessions(mask.getId(), LocalDate.now().plusDays(1L));
         List<MovieSession> availableSessions2 = movieSessionService
-                .findAvailableSessions(3L, LocalDate.now().minusDays(1L));
+                .findAvailableSessions(raceMovie.getId(), LocalDate.now().minusDays(1L));
         availableSessions.forEach(System.out::println);
         availableSessions1.forEach(System.out::println);
         availableSessions2.forEach(System.out::println);
