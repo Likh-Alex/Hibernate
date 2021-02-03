@@ -109,7 +109,7 @@ public class Main {
             User userByLogin = authenticationService.login(tolik.getEmail(), password);
             System.out.println(userByLogin.toString());
         } catch (AuthenticationException e) {
-            e.printStackTrace();
+            System.out.println("An error encountered while login the user");;
         }
 
         final ShoppingCartService shoppingCartService = (ShoppingCartService) injector
