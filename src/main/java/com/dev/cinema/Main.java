@@ -12,6 +12,7 @@ import com.dev.cinema.security.AuthenticationService;
 import com.dev.cinema.service.CinemaHallService;
 import com.dev.cinema.service.MovieService;
 import com.dev.cinema.service.MovieSessionService;
+import com.dev.cinema.service.OrderService;
 import com.dev.cinema.service.ShoppingCartService;
 import com.dev.cinema.service.UserService;
 import java.time.LocalDate;
@@ -109,7 +110,8 @@ public class Main {
             User userByLogin = authenticationService.login(tolik.getEmail(), password);
             System.out.println(userByLogin.toString());
         } catch (AuthenticationException e) {
-            System.out.println("An error encountered while login the user");;
+            System.out.println("An error encountered while login the user");
+            ;
         }
 
         final ShoppingCartService shoppingCartService = (ShoppingCartService) injector
@@ -139,6 +141,7 @@ public class Main {
         Ticket ticket1 = new Ticket();
         ticket1.setUser(registeredPavlo);
         ticket1.setMovieSession(movieSessionForYesterday);
+
         Ticket ticket2 = new Ticket();
         ticket2.setUser(registeredMykola);
         ticket2.setMovieSession(movieSessionForToday);
@@ -167,5 +170,51 @@ public class Main {
 
         shoppingCartService.clear(cartByUser3);
         System.out.println(cartByUser3);
+
+        System.out.println("+++++ORDER SERVICE+++++");
+
+        final OrderService orderService = (OrderService) injector
+                .getInstance(OrderService.class);
+
+        Ticket additionalTicket1 = new Ticket();
+        Ticket additionalTicket2 = new Ticket();
+        Ticket additionalTicket3 = new Ticket();
+        Ticket additionalTicket4 = new Ticket();
+        Ticket additionalTicket5 = new Ticket();
+        Ticket additionalTicket6 = new Ticket();
+
+        for (Ticket ticket : Arrays.asList(additionalTicket1, additionalTicket2,
+                additionalTicket3)) {
+            ticket.setMovieSession(movieSessionForToday);
+        }
+        for (Ticket ticket : Arrays.asList(additionalTicket4, additionalTicket5,
+                additionalTicket6)) {
+            ticket.setMovieSession(movieSessionForTomorrow);
+        }
+        for (Ticket ticket4 : Arrays.asList(additionalTicket1, additionalTicket2,
+                additionalTicket3)) {
+            ticket4.setUser(registeredMykola);
+        }
+        shoppingCartService.addSession(movieSessionForToday, registeredMykola);
+        ShoppingCart shoppingCart4 = shoppingCartService.getByUser(registeredMykola);
+        System.out.println("COMPLETE FIRST ORDER FOR SHOPPING CART 4\n");
+        System.out.println(orderService.completeOrder(shoppingCart4));
+        System.out.println("COMPLETED ORDER 4\n");
+        System.out.println(shoppingCart4);
+
+        for (Ticket ticket : Arrays.asList(additionalTicket4, additionalTicket5,
+                additionalTicket6)) {
+            ticket.setUser(registeredMykola);
+        }
+        shoppingCartService.addSession(movieSessionForTomorrow, registeredMykola);
+        ShoppingCart shoppingCart5 = shoppingCartService.getByUser(registeredMykola);
+
+        System.out.println("COMPLETE ORDER FOR SHOPPING CART 5\n");
+        System.out.println(orderService.completeOrder(shoppingCart5));
+        System.out.println("COMPLETED ORDER 5\n");
+        System.out.println(shoppingCart5);
+
+        System.out.println("ORDER HISTORY BY USER\n");
+        System.out.println(orderService.getOrdersHistory(registeredMykola).toString());
     }
 }
