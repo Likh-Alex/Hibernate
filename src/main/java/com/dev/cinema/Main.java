@@ -5,14 +5,18 @@ import com.dev.cinema.lib.Injector;
 import com.dev.cinema.model.CinemaHall;
 import com.dev.cinema.model.Movie;
 import com.dev.cinema.model.MovieSession;
+import com.dev.cinema.model.ShoppingCart;
+import com.dev.cinema.model.Ticket;
 import com.dev.cinema.model.User;
 import com.dev.cinema.security.AuthenticationService;
 import com.dev.cinema.service.CinemaHallService;
 import com.dev.cinema.service.MovieService;
 import com.dev.cinema.service.MovieSessionService;
+import com.dev.cinema.service.ShoppingCartService;
 import com.dev.cinema.service.UserService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 public class Main {
@@ -63,11 +67,11 @@ public class Main {
         movieSessionForTomorrow.setShowTime(LocalDateTime.now().plusDays(1));
         movieSessionService.add(movieSessionForTomorrow);
 
-        MovieSession yesterdayMovieSession = new MovieSession();
-        yesterdayMovieSession.setMovie(robocop);
-        yesterdayMovieSession.setCinemaHall(oldTypeCinemaHall);
-        yesterdayMovieSession.setShowTime(LocalDateTime.now().minusDays(1));
-        movieSessionService.add(yesterdayMovieSession);
+        MovieSession movieSessionForYesterday = new MovieSession();
+        movieSessionForYesterday.setMovie(robocop);
+        movieSessionForYesterday.setCinemaHall(oldTypeCinemaHall);
+        movieSessionForYesterday.setShowTime(LocalDateTime.now().minusDays(1));
+        movieSessionService.add(movieSessionForYesterday);
 
         List<MovieSession> availableSessions = movieSessionService
                 .findAvailableSessions(raceMovie.getId(), LocalDate.now());
@@ -105,7 +109,63 @@ public class Main {
             User userByLogin = authenticationService.login(tolik.getEmail(), password);
             System.out.println(userByLogin.toString());
         } catch (AuthenticationException e) {
-            e.printStackTrace();
+            System.out.println("An error encountered while login the user");;
         }
+
+        final ShoppingCartService shoppingCartService = (ShoppingCartService) injector
+                .getInstance(ShoppingCartService.class);
+        final ShoppingCart shoppingCart1 = new ShoppingCart();
+        final ShoppingCart shoppingCart2 = new ShoppingCart();
+        final ShoppingCart shoppingCart3 = new ShoppingCart();
+
+        User pavlo = new User();
+        pavlo.setEmail("pavlo@gmail.com");
+        pavlo.setPassword("1234");
+        final User registeredPavlo = authenticationService.register(pavlo.getEmail(),
+                pavlo.getPassword());
+
+        User mykola = new User();
+        mykola.setEmail("mykola@gmail.com");
+        mykola.setPassword("qwerty");
+        final User registeredMykola = authenticationService.register(mykola.getEmail(),
+                mykola.getPassword());
+
+        User roman = new User();
+        roman.setEmail("roman@gmail.com");
+        roman.setPassword("09876");
+        final User registeredRoman = authenticationService.register(roman.getEmail(),
+                roman.getPassword());
+
+        Ticket ticket1 = new Ticket();
+        ticket1.setUser(registeredPavlo);
+        ticket1.setMovieSession(movieSessionForYesterday);
+        Ticket ticket2 = new Ticket();
+        ticket2.setUser(registeredMykola);
+        ticket2.setMovieSession(movieSessionForToday);
+
+        Ticket ticket3 = new Ticket();
+        ticket3.setUser(registeredRoman);
+        ticket3.setMovieSession(movieSessionForTomorrow);
+
+        shoppingCart1.setUser(registeredPavlo);
+        shoppingCart1.setTickets(List.of(ticket1));
+        shoppingCart2.setUser(registeredMykola);
+        shoppingCart2.setTickets(List.of(ticket2));
+        shoppingCart3.setUser(registeredRoman);
+        shoppingCart3.setTickets(List.of(ticket3));
+
+        shoppingCartService.addSession(movieSessionForYesterday, registeredPavlo);
+        shoppingCartService.addSession(movieSessionForToday, registeredMykola);
+        shoppingCartService.addSession(movieSessionForTomorrow, registeredRoman);
+
+        ShoppingCart cartByUser1 = shoppingCartService.getByUser(registeredPavlo);
+        ShoppingCart cartByUser2 = shoppingCartService.getByUser(registeredMykola);
+        ShoppingCart cartByUser3 = shoppingCartService.getByUser(registeredRoman);
+        for (ShoppingCart shoppingCart : Arrays.asList(cartByUser1, cartByUser2, cartByUser3)) {
+            System.out.println(shoppingCart.toString());
+        }
+
+        shoppingCartService.clear(cartByUser3);
+        System.out.println(cartByUser3);
     }
 }
