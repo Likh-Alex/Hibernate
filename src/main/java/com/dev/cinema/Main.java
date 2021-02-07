@@ -12,6 +12,7 @@ import com.dev.cinema.security.AuthenticationService;
 import com.dev.cinema.service.CinemaHallService;
 import com.dev.cinema.service.MovieService;
 import com.dev.cinema.service.MovieSessionService;
+import com.dev.cinema.service.OrderService;
 import com.dev.cinema.service.ShoppingCartService;
 import com.dev.cinema.service.UserService;
 import java.time.LocalDate;
@@ -109,7 +110,7 @@ public class Main {
             User userByLogin = authenticationService.login(tolik.getEmail(), password);
             System.out.println(userByLogin.toString());
         } catch (AuthenticationException e) {
-            System.out.println("An error encountered while login the user");;
+            System.out.println("An error encountered while login the user");
         }
 
         final ShoppingCartService shoppingCartService = (ShoppingCartService) injector
@@ -139,6 +140,7 @@ public class Main {
         Ticket ticket1 = new Ticket();
         ticket1.setUser(registeredPavlo);
         ticket1.setMovieSession(movieSessionForYesterday);
+
         Ticket ticket2 = new Ticket();
         ticket2.setUser(registeredMykola);
         ticket2.setMovieSession(movieSessionForToday);
@@ -167,5 +169,27 @@ public class Main {
 
         shoppingCartService.clear(cartByUser3);
         System.out.println(cartByUser3);
+
+        System.out.println("+++++ORDER SERVICE+++++");
+        final OrderService orderService = (OrderService) injector
+                .getInstance(OrderService.class);
+
+        shoppingCartService.addSession(movieSessionForToday, registeredMykola);
+        ShoppingCart firstCartOfMykola = shoppingCartService.getByUser(registeredMykola);
+        System.out.println("COMPLETE FIRST ORDER FOR SHOPPING CART 4\n");
+        System.out.println(orderService.completeOrder(firstCartOfMykola));
+        System.out.println("COMPLETED ORDER 4\n");
+        System.out.println(firstCartOfMykola);
+
+        shoppingCartService.addSession(movieSessionForTomorrow, registeredMykola);
+        ShoppingCart secondCartOfMykola = shoppingCartService.getByUser(registeredMykola);
+
+        System.out.println("COMPLETE ORDER FOR SHOPPING CART 5\n");
+        System.out.println(orderService.completeOrder(secondCartOfMykola));
+        System.out.println("COMPLETED ORDER 5\n");
+        System.out.println(secondCartOfMykola);
+
+        System.out.println("ORDER HISTORY BY USER\n");
+        System.out.println(orderService.getOrdersHistory(registeredMykola).toString());
     }
 }
